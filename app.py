@@ -13,24 +13,23 @@ transactions = [
 # Read operation
 @app.route('/', methods=['GET'])
 def get_transactions():
-        return render_template('transactions.html',transactions=transactions)
+        return render_template('transactions.html', transactions=transactions)
 
 # Create operation
 @app.route('/add', methods=['GET','POST'])
 def add_transaction():    
-    if request.methods == 'Post':
+    if request.method == 'POST':
         transaction = {
             'id': len(transactions) + 1,
             'date': request.form['date'],
             'amount': float(request.form['amount'])
         }
 
-        transaction.append(transaction)
+        transactions.append(transaction)
 
         return redirect(url_for("get_transactions"))
     
     return render_template("form.html")
-
 # Update operation
 @app.route('/edit/<int:transaction_id>', methods={'GET', 'POST'})
 def edit_transaction(transaction_id):
@@ -44,14 +43,22 @@ def edit_transaction(transaction_id):
                 transaction['amount'] = amount
                 break
 
-        return redirect(url_for(get_transactions))
+        return redirect(url_for("get_transactions"))
 
     for transaction in transactions:
-        if transaction['id'] == transaction_id
+        if transaction['id'] == transaction_id:
             return render_template("edit.html", transaction=transaction)
 
 # Delete operation
 @app.route('/delete/<int:transaction_id>')
+def delete_transaction(transaction_id):
+    for transaction in transactions:
+        if transaction['id'] == transaction_id:
+            transactions.remove(transaction)
+            break
+
+    return redirect(url_for("get_transactions"))
+
 
 
 # Run the Flask app
