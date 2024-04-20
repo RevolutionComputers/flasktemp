@@ -9,6 +9,7 @@ transactions = [
     {'id': 2, 'date': '2023-06-02', 'amount': -200},
     {'id': 3, 'date': '2023-06-03', 'amount': 300}
 ]
+filtered_transactions = []
 
 # Read operation
 @app.route('/', methods=['GET'])
@@ -31,7 +32,7 @@ def add_transaction():
     
     return render_template("form.html")
 # Update operation
-@app.route('/edit/<int:transaction_id>', methods={'GET', 'POST'})
+@app.route('/edit/<int:transaction_id>', methods=['GET', 'POST'])
 def edit_transaction(transaction_id):
     if request.method == 'POST':
         date = request.form['date']
@@ -59,7 +60,25 @@ def delete_transaction(transaction_id):
 
     return redirect(url_for("get_transactions"))
 
+@app.route('/search', methods=['GET', 'POST'])
+def search_transactions():
+    if request.method == 'POST':
+        low_price = int(request.form['min_amount'])
+        high_price = int(request.form['max_amount'])
+        for transaction in transactions:
+            if (transaction['amount'] >= low_price and transaction['amount'] <= high_price):
+                filtered_transactions.append(transaction)
+            return render_template('transactions.html', transactions=filtered_transactions)
 
+    return render_template('search.html')
+
+@app.route('/balance', methods=['GET'])
+def get_balance():
+    balance = 0
+    for transaction in transactions:
+        balance += transaction['amount']
+    return render_template('transactions.html', transactions=transactions,balance=balance)
+    
 
 # Run the Flask app
 if __name__ == '__main__':
